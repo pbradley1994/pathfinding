@@ -1,3 +1,6 @@
+# Binary-compiled files
+*.py[cod]
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
