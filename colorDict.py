@@ -14,4 +14,6 @@ colorDict = {'bright_blue': (0, 168, 248),
              'light_red': (248, 144, 184),
              'blue': (0, 0, 248),
              'green_white': (64, 248, 64),
-             'bg_color': (0, 168, 248)}
+             'bg_color': (0, 168, 248),
+             'purple': (248, 0, 248),
+             'dark_purple': (216, 0, 216)}
