@@ -35,10 +35,14 @@ class Graph(object):
                 self.nodes[(x, y)] = Node(x, y)
 
         self.start_node = self.nodes[(1, 4)]
-        self.goal_node = self.nodes[(14, 4)]
+        self.goal_node = self.nodes[(13, 4)]
 
-        self.algorithm = Algorithms.Dijkstra(self.start_node, self.goal_node) 
+        self.algorithm = Algorithms.algorithm_dict['Breadth First Search'](self.start_node, self.goal_node)
         self.update_flag = False
+
+    def change_algorithm(self, new_algorithm_name):
+        self.algorithm = Algorithms.algorithm_dict[new_algorithm_name](self.start_node, self.goal_node)
+        self.reset()
 
     def update(self):
         if self.update_flag:
@@ -91,8 +95,6 @@ class Graph(object):
                 pygame.draw.line(surf, colorDict.colorDict['dark_purple'], old_pos, new_pos, 4)
                 path.append(current)
 
-
-
     def get_neighbors(self, node):
         adj_positions = {(node.x, node.y - 1), (node.x, node.y + 1), (node.x - 1, node.y), (node.x + 1, node.y)}
         neighbors = set()
@@ -118,7 +120,6 @@ class Graph(object):
         else:
             return None
 
-
 # === MAIN ===================================================================
 def main():
     # Initial Setup
@@ -141,6 +142,13 @@ def main():
                 if event.key == K_SPACE:
                     my_graph.reset()
                     my_graph.start()
+
+                elif event.key == K_1:
+                    my_graph.change_algorithm("Breadth First Search")
+                elif event.key == K_2:
+                    my_graph.change_algorithm("Dijkstra's Algorithm")
+                elif event.key == K_3:
+                    my_graph.change_algorithm("Greedy Best-First Search")
 
             elif event.type == MOUSEBUTTONUP:
                 node_under_cursor = my_graph.get_node_at_pos(pygame.mouse.get_pos())
