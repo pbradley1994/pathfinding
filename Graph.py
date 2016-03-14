@@ -13,9 +13,11 @@ WINWIDTH = NUM_TILES_X*TILESIZE
 WINHEIGHT = NUM_TILES_Y*TILESIZE
 DRAW_ARROWS = True
 DRAW_PATH = True
+DRAW_NUMBERS = True
 arrow = pygame.image.load('arrow.png')
 # Setup
 pygame.init()
+BASICFONT = pygame.font.Font('KhmerUI.ttf', 20)
 FPSCLOCK = pygame.time.Clock()
 DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
 
@@ -94,6 +96,13 @@ class Graph(object):
                 # Draw line
                 pygame.draw.line(surf, colorDict.colorDict['dark_purple'], old_pos, new_pos, 4)
                 path.append(current)
+
+        if DRAW_NUMBERS and self.algorithm.cost_so_far:
+            for node, value in self.algorithm.cost_so_far.iteritems():
+                value_surf = BASICFONT.render(str(value), True, colorDict.colorDict['black'])
+                value_rect = value_surf.get_rect()
+                value_rect.center = (node.x * TILESIZE + TILESIZE/2, node.y * TILESIZE + TILESIZE/2)
+                surf.blit(value_surf, value_rect)
 
     def get_neighbors(self, node):
         adj_positions = {(node.x, node.y - 1), (node.x, node.y + 1), (node.x - 1, node.y), (node.x + 1, node.y)}
