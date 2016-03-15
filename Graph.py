@@ -158,6 +158,8 @@ def main():
                     my_graph.change_algorithm("Dijkstra's Algorithm")
                 elif event.key == K_3:
                     my_graph.change_algorithm("Greedy Best-First Search")
+                elif event.key == K_4:
+                    my_graph.change_algorithm("A* Algorithm")
 
             elif event.type == MOUSEBUTTONUP:
                 node_under_cursor = my_graph.get_node_at_pos(pygame.mouse.get_pos())
