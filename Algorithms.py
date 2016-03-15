@@ -1,4 +1,4 @@
-import Queue
+import Queue, collections
 
 # Python implementation of the Breadth First Search algorithm
 class BreadthFirstSearch(object):
@@ -17,7 +17,8 @@ class BreadthFirstSearch(object):
 		self.came_from = {}
 		self.came_from[self.start_node] = None
 		# No implementation of cost
-		self.cost_so_far = None
+		self.cost_so_far = {}
+		self.cost_so_far[self.start_node] = 0
 
 	def update(self, graph):
 		if not self.frontier.empty():
@@ -29,6 +30,7 @@ class BreadthFirstSearch(object):
 			for next_node in graph.get_neighbors(current_node):
 				# We only care about those nodes that we have not visited
 				if next_node.status == "Unexplored":
+					self.cost_so_far[next_node] = self.cost_so_far[current_node] + 1
 					# Add the unvisited node to the frontier
 					self.frontier.put(next_node)
 					next_node.status = "Frontier"
@@ -170,7 +172,7 @@ class AStar(object):
 	def heuristic(self, node):
 		return abs(node.x - self.goal_node.x) + abs(node.y - self.goal_node.y)
 
-algorithm_dict = {"Breadth First Search": BreadthFirstSearch,
-				  "Dijkstra's Algorithm": Dijkstra,
-				  "Greedy Best-First Search": GreedyBestFirstSearch,
-				  "A* Algorithm": AStar}
+algorithm_dict = collections.OrderedDict([("Breadth First Search", BreadthFirstSearch),
+				  ("Dijkstra's Algorithm", Dijkstra),
+				  ("Greedy Best-First Search", GreedyBestFirstSearch),
+				  ("A* Algorithm", AStar)])

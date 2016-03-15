@@ -2,32 +2,46 @@
 
 import pygame, sys
 from pygame import *
-import colorDict
-import Algorithms
+import colorDict, Algorithms, UserInterface
 
 TILESIZE = 32
 FPS = 120
-NUM_TILES_X = 15
-NUM_TILES_Y = 10
+NUM_TILES_X = 20
+NUM_TILES_Y = 12
+UI_HEIGHT = 96
 WINWIDTH = NUM_TILES_X*TILESIZE
-WINHEIGHT = NUM_TILES_Y*TILESIZE
+WINHEIGHT = NUM_TILES_Y*TILESIZE + UI_HEIGHT
 DRAW_ARROWS = True
 DRAW_PATH = True
 DRAW_NUMBERS = True
-arrow = pygame.image.load('arrow.png')
 # Setup
 pygame.init()
 BASICFONT = pygame.font.Font('KhmerUI.ttf', 20)
 FPSCLOCK = pygame.time.Clock()
 DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
 
+IMAGESDICT = UserInterface.get_images()
+dithered_surf = UserInterface.create_dithered_surf(TILESIZE, TILESIZE, 'dark_gray')
+
 class Node(object):
     def __init__(self, x, y, cost=1, reachable=True):
         self.x = x
         self.y = y
         self.cost = cost
-        self.reachable = True
         self.status = "Unexplored"
+
+        self.state = "Open"
+
+    def cycle_state(self):
+        if self.state == 'Open':
+            self.state = 'Difficult'
+            self.cost = 5
+        elif self.state == 'Difficult':
+            self.state = 'Wall'
+            self.cost = 0
+        elif self.state == 'Wall':
+            self.state = 'Open'
+            self.cost = 1
 
 class Graph(object):
     def __init__(self):
@@ -36,21 +50,23 @@ class Graph(object):
             for y in range(NUM_TILES_Y):
                 self.nodes[(x, y)] = Node(x, y)
 
-        self.start_node = self.nodes[(1, 4)]
-        self.goal_node = self.nodes[(13, 4)]
+        self.start_node = self.nodes[(2, 5)]
+        self.goal_node = self.nodes[(17, 5)]
 
-        self.algorithm = Algorithms.algorithm_dict['Breadth First Search'](self.start_node, self.goal_node)
-        self.update_flag = False
+        self.change_algorithm('Breadth First Search')
 
     def change_algorithm(self, new_algorithm_name):
+        self.current_algorithm = new_algorithm_name
         self.algorithm = Algorithms.algorithm_dict[new_algorithm_name](self.start_node, self.goal_node)
         self.reset()
 
-    def update(self):
+    def update(self, gameStateObj):
+        if gameStateObj['current_algorithm'] != self.current_algorithm:
+            self.change_algorithm(gameStateObj['current_algorithm'])
         if self.update_flag:
             self.update_flag = self.algorithm.update(self)
 
-    def draw(self, surf):
+    def draw(self, surf, gameStateObj):
         surf.fill(colorDict.colorDict['white'])
         for position, node in self.nodes.iteritems():
             imageRect = pygame.Rect(node.x*TILESIZE, node.y*TILESIZE, 32, 32)
@@ -68,13 +84,17 @@ class Graph(object):
             if node is self.goal_node:
                 pygame.draw.rect(surf, colorDict.colorDict['red'], imageRect)
             # If not reachable, fill with dark_gray:
-            if not node.reachable:
+            if not node.cost:
                 pygame.draw.rect(surf, colorDict.colorDict['dark_gray'], imageRect)
+            # If cost is greater than one, fill with dithered surf
+            if node.cost > 1:
+                surf.blit(dithered_surf, imageRect)
 
             # Draw outline
             pygame.draw.rect(surf, colorDict.colorDict['light_gray'], imageRect, 1)
 
-        if DRAW_ARROWS and self.algorithm.came_from:
+        if gameStateObj['draw_arrows'] and self.algorithm.came_from:
+            arrow = IMAGESDICT['arrow']
             for child_node, parent_node in self.algorithm.came_from.iteritems():
                 if child_node and parent_node:
                     if child_node.x < parent_node.x:
@@ -97,7 +117,7 @@ class Graph(object):
                 pygame.draw.line(surf, colorDict.colorDict['dark_purple'], old_pos, new_pos, 4)
                 path.append(current)
 
-        if DRAW_NUMBERS and self.algorithm.cost_so_far:
+        if gameStateObj['draw_numbers'] and self.algorithm.cost_so_far:
             for node, value in self.algorithm.cost_so_far.iteritems():
                 value_surf = BASICFONT.render(str(value), True, colorDict.colorDict['black'])
                 value_rect = value_surf.get_rect()
@@ -108,7 +128,7 @@ class Graph(object):
         adj_positions = {(node.x, node.y - 1), (node.x, node.y + 1), (node.x - 1, node.y), (node.x + 1, node.y)}
         neighbors = set()
         for adj_position in adj_positions:
-            if adj_position in self.nodes and self.nodes[adj_position].reachable:
+            if adj_position in self.nodes and self.nodes[adj_position].cost:
                 neighbors.add(self.nodes[adj_position])
         return neighbors
 
@@ -116,6 +136,7 @@ class Graph(object):
         for pos, node in self.nodes.iteritems():
             node.status = "Unexplored"
         self.algorithm.reset()
+        self.update_flag = False
 
     def start(self):
         self.update_flag = True
@@ -129,10 +150,38 @@ class Graph(object):
         else:
             return None
 
+    def take_input(self, eventList):
+        for event in eventList:
+            if event.type == KEYUP:
+                if event.key == K_SPACE:
+                    self.reset()
+                    self.start()
+
+                elif event.key == K_1:
+                    self.change_algorithm("Breadth First Search")
+                elif event.key == K_2:
+                    self.change_algorithm("Dijkstra's Algorithm")
+                elif event.key == K_3:
+                    self.change_algorithm("Greedy Best-First Search")
+                elif event.key == K_4:
+                    self.change_algorithm("A* Algorithm")
+
+            elif event.type == MOUSEBUTTONUP:
+                if event.pos[1] <= WINHEIGHT - UI_HEIGHT:
+                    node_under_cursor = self.get_node_at_pos(event.pos)
+                    if node_under_cursor is not self.goal_node or self.start_node:
+                        node_under_cursor.cycle_state()
+                        self.reset()
+
 # === MAIN ===================================================================
 def main():
     # Initial Setup
+    gameStateObj = {'draw_arrows': False,
+                    'draw_numbers': False,
+                    'current_algorithm': 'Breadth First Search',
+                    'lock_to_ui': False}
     my_graph = Graph()
+    main_ui = UserInterface.MainUI(WINWIDTH, UI_HEIGHT, [name for name in Algorithms.algorithm_dict], (0, NUM_TILES_Y*TILESIZE), BASICFONT)
 
     # Main game loop
     while(True):
@@ -146,30 +195,18 @@ def main():
                     terminate()
             eventList.append(event)
 
-        for event in eventList:
-            if event.type == KEYUP:
-                if event.key == K_SPACE:
-                    my_graph.reset()
-                    my_graph.start()
-
-                elif event.key == K_1:
-                    my_graph.change_algorithm("Breadth First Search")
-                elif event.key == K_2:
-                    my_graph.change_algorithm("Dijkstra's Algorithm")
-                elif event.key == K_3:
-                    my_graph.change_algorithm("Greedy Best-First Search")
-                elif event.key == K_4:
-                    my_graph.change_algorithm("A* Algorithm")
-
-            elif event.type == MOUSEBUTTONUP:
-                node_under_cursor = my_graph.get_node_at_pos(pygame.mouse.get_pos())
-                node_under_cursor.reachable = not node_under_cursor.reachable
-                my_graph.reset()
+        # Take Input
+        if not gameStateObj['lock_to_ui']:
+            my_graph.take_input(eventList)
+        gameStateObj['lock_to_ui'] = main_ui.take_input(eventList)
 
         # Update
-        my_graph.update()
+        main_ui.update(gameStateObj)
+        my_graph.update(gameStateObj)
         # Draw 
-        my_graph.draw(DISPLAYSURF)
+        my_graph.draw(DISPLAYSURF, gameStateObj)
+        main_ui.draw(DISPLAYSURF, IMAGESDICT)
+
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
