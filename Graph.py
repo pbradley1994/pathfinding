@@ -106,16 +106,33 @@ class Graph(object):
                     else:
                         surf.blit(pygame.transform.rotate(arrow, 90), (child_node.x*TILESIZE + TILESIZE/2 - arrow.get_height()/2, child_node.y*TILESIZE - TILESIZE/4))
 
-        if DRAW_PATH and self.algorithm.came_from and self.goal_node in self.algorithm.came_from:
-            current = self.goal_node
-            path = [current]
-            while current is not self.start_node:
-                old_pos = current.x*TILESIZE + TILESIZE/2 - 2, current.y*TILESIZE + TILESIZE/2 - 2
-                current = self.algorithm.came_from[current]
-                new_pos = current.x*TILESIZE + TILESIZE/2 - 2, current.y*TILESIZE + TILESIZE/2 - 2
-                # Draw line
-                pygame.draw.line(surf, colorDict.colorDict['dark_purple'], old_pos, new_pos, 4)
-                path.append(current)
+        if DRAW_PATH:
+            if isinstance(self.algorithm, Algorithms.Bidirectional):
+                for forward_path in self.algorithm.forward_path:
+                    for index in range(len(forward_path) - 1):
+                        current = forward_path[index]
+                        next = forward_path[index + 1]
+                        old_pos = current.x*TILESIZE + TILESIZE/2 - 2, current.y*TILESIZE + TILESIZE/2 - 2
+                        new_pos = next.x*TILESIZE + TILESIZE/2 - 2, next.y*TILESIZE + TILESIZE/2 - 2
+                        pygame.draw.line(surf, colorDict.colorDict['dark_purple'], old_pos, new_pos, 4)
+                for backward_path in self.algorithm.backward_path:
+                    for index in range(len(backward_path) - 1):
+                        current = backward_path[index]
+                        next = backward_path[index + 1]
+                        old_pos = current.x*TILESIZE + TILESIZE/2 - 2, current.y*TILESIZE + TILESIZE/2 - 2
+                        new_pos = next.x*TILESIZE + TILESIZE/2 - 2, next.y*TILESIZE + TILESIZE/2 - 2
+                        pygame.draw.line(surf, colorDict.colorDict['dark_purple'], old_pos, new_pos, 4)
+
+            elif self.algorithm.came_from and self.goal_node in self.algorithm.came_from:
+                current = self.goal_node
+                path = [current]
+                while current is not self.start_node:
+                    old_pos = current.x*TILESIZE + TILESIZE/2 - 2, current.y*TILESIZE + TILESIZE/2 - 2
+                    current = self.algorithm.came_from[current]
+                    new_pos = current.x*TILESIZE + TILESIZE/2 - 2, current.y*TILESIZE + TILESIZE/2 - 2
+                    # Draw line
+                    pygame.draw.line(surf, colorDict.colorDict['dark_purple'], old_pos, new_pos, 4)
+                    path.append(current)
 
         if gameStateObj['draw_numbers'] and self.algorithm.cost_so_far:
             for node, value in self.algorithm.cost_so_far.iteritems():
