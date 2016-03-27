@@ -1,6 +1,6 @@
 # /usr/bin/env python2.7
 
-import pygame, sys
+import pygame, sys, math
 from pygame import *
 import colorDict, Algorithms, UserInterface
 
@@ -97,14 +97,14 @@ class Graph(object):
             arrow = IMAGESDICT['arrow']
             for child_node, parent_node in self.algorithm.came_from.iteritems():
                 if child_node and parent_node:
-                    if child_node.x < parent_node.x:
-                        surf.blit(arrow, (child_node.x*TILESIZE + TILESIZE/2, child_node.y*TILESIZE + TILESIZE/2 - arrow.get_height()/2))
-                    elif child_node.x > parent_node.x:
-                        surf.blit(pygame.transform.flip(arrow, 1, 0), (child_node.x*TILESIZE - TILESIZE/4, child_node.y*TILESIZE + TILESIZE/2 - arrow.get_height()/2))
-                    elif child_node.y < parent_node.y:
-                        surf.blit(pygame.transform.rotate(arrow, -90), (child_node.x*TILESIZE + TILESIZE/2 - arrow.get_height()/2, child_node.y*TILESIZE + TILESIZE/2))
-                    else:
-                        surf.blit(pygame.transform.rotate(arrow, 90), (child_node.x*TILESIZE + TILESIZE/2 - arrow.get_height()/2, child_node.y*TILESIZE - TILESIZE/4))
+                    # Had to do MATH here!
+                    angle = math.atan2(parent_node.x - child_node.x, parent_node.y - child_node.y)*180/math.pi - 90
+                    new_arrow = pygame.transform.rotate(arrow, angle)
+                    new_arrow_rect = new_arrow.get_rect()
+                    x_offset = math.cos(angle*math.pi/180) * TILESIZE/2
+                    y_offset = math.sin(angle*math.pi/180) * TILESIZE/2
+                    new_arrow_rect.center = child_node.x*TILESIZE + x_offset + TILESIZE/2, child_node.y*TILESIZE - y_offset + TILESIZE/2
+                    surf.blit(new_arrow, new_arrow_rect)
 
         if DRAW_PATH:
             if isinstance(self.algorithm, Algorithms.Bidirectional):
