@@ -65,6 +65,7 @@ class Graph(object):
             self.change_algorithm(gameStateObj['current_algorithm'])
         if self.update_flag:
             self.update_flag = self.algorithm.update(self)
+        #self.update_flag = False
 
     def draw(self, surf, gameStateObj):
         surf.fill(colorDict.colorDict['white'])
@@ -169,21 +170,7 @@ class Graph(object):
 
     def take_input(self, eventList):
         for event in eventList:
-            if event.type == KEYUP:
-                if event.key == K_SPACE:
-                    self.reset()
-                    self.start()
-
-                elif event.key == K_1:
-                    self.change_algorithm("Breadth First Search")
-                elif event.key == K_2:
-                    self.change_algorithm("Dijkstra's Algorithm")
-                elif event.key == K_3:
-                    self.change_algorithm("Greedy Best-First Search")
-                elif event.key == K_4:
-                    self.change_algorithm("A* Algorithm")
-
-            elif event.type == MOUSEBUTTONUP:
+            if event.type == MOUSEBUTTONUP:
                 if event.pos[1] <= WINHEIGHT - UI_HEIGHT:
                     node_under_cursor = self.get_node_at_pos(event.pos)
                     if node_under_cursor is not self.goal_node or self.start_node:
@@ -215,7 +202,9 @@ def main():
         # Take Input
         if not gameStateObj['lock_to_ui']:
             my_graph.take_input(eventList)
-        gameStateObj['lock_to_ui'] = main_ui.take_input(eventList)
+        gameStateObj['lock_to_ui'], start_pressed = main_ui.take_input(eventList)
+        if start_pressed:
+            my_graph.start()
 
         # Update
         main_ui.update(gameStateObj)

@@ -20,9 +20,10 @@ def create_dithered_surf(x_size, y_size, color):
 class MainUI(object):
     def __init__(self, x_size, y_size, options, position, font):
         self.position = position
-        self.algorithm_menu = PopOutMenu(options, (position[0] + x_size/2, position[1] + 8), font)
+        self.algorithm_menu = PopOutMenu(options, (position[0] + x_size/2 - 32, position[1] + 8), font)
         self.arrow_check_box = CheckBox('Draw Arrows', (position[0] + 8, position[1] + 8), font)
         self.cost_check_box = CheckBox('Draw Cost', (position[0] + 8, position[1] + 40), font)
+        self.start_button = Button('Start', (position[0] + x_size/2 + - 32, position[1] + 48), font, self.algorithm_menu.size)
         self.background = pygame.Surface((x_size, y_size))
         self.background.fill(colorDict.colorDict['maroon'])
 
@@ -30,7 +31,8 @@ class MainUI(object):
         lock_to_ui = self.algorithm_menu.take_input(eventList)
         self.arrow_check_box.take_input(eventList)
         self.cost_check_box.take_input(eventList)
-        return lock_to_ui
+        start_pressed = self.start_button.take_input(eventList)
+        return lock_to_ui, start_pressed
 
     def update(self, gameStateObj):
         gameStateObj['current_algorithm'] = self.algorithm_menu.update()
@@ -42,6 +44,36 @@ class MainUI(object):
         self.algorithm_menu.draw(surf, IMAGESDICT)
         self.arrow_check_box.draw(surf, IMAGESDICT)
         self.cost_check_box.draw(surf, IMAGESDICT)
+        self.start_button.draw(surf)
+
+class Button(object):
+    def __init__(self, label, position, font, size):
+        self.label = label
+        self.position = position
+        self.font = font
+        self.size = size
+
+        self.foreground = pygame.Surface((self.size[0] - 2, self.size[1] - 2))
+        self.foreground.fill(colorDict.colorDict['light_purple']) 
+        self.background = pygame.Surface(self.size)
+        self.background.fill(colorDict.colorDict['black'])
+
+    def take_input(self, eventList):
+        for event in eventList:
+            if event.type == MOUSEBUTTONUP:
+                input_x = event.pos[0]
+                input_y = event.pos[1]
+
+                if input_x >= self.position[0] and input_x <= self.position[0] + self.size[0] and \
+                    input_y >= self.position[1] and input_y <= self.position[1] + self.size[1]:
+                    return True
+        return False
+
+    def draw(self, surf):
+        surf.blit(self.background, (self.position[0] - 1, self.position[1] - 1))
+        surf.blit(self.foreground, self.position)
+        font_position = self.position[0] + self.size[0]/2 - self.font.size(self.label)[0]/2, self.position[1] + 3
+        surf.blit(self.font.render(self.label, True, colorDict.colorDict['white']), font_position)
 
 class CheckBox(object):
     def __init__(self, label, position, font):

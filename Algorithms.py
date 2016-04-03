@@ -218,6 +218,7 @@ class Dynamic(object):
     def heuristic(self, node):
         return abs(node.x - self.goal_node.x) + abs(node.y - self.goal_node.y)
 
+    # Example weighting function
     # Ranges between 2, at the start node, and 0.5, at the goal node.
     def weight(self, node):
         return 0.5 + 1.5*self.heuristic(node)/self.heuristic(self.start_node)
@@ -327,7 +328,7 @@ class Bidirectional(object):
                 path.append(current)
         return path
 
-# Python implementation of A* Algorithm
+# Python implementation of Theta* Algorithm
 class ThetaStar(object):
     def __init__(self, start_node, goal_node):
         self.start_node = start_node
@@ -335,32 +336,27 @@ class ThetaStar(object):
         self.reset()
 
     def reset(self):
-        # Set up the frontier queue
         self.frontier = Queue.PriorityQueue()
-        # Put the starting node into the frontier queue
         self.frontier.put((0, self.start_node))
         self.start_node.status = "Frontier"
-        # Keeps track of how we got to each node
         self.came_from = {}
-        #self.came_from[self.start_node] = None
         self.cost_so_far = {}
         self.cost_so_far[self.start_node] = 0
 
     def update(self, graph):
         if not self.frontier.empty():
-            # Get a node from the queue
             current_node = self.frontier.get()[1]
-            # This node has now been visited
             current_node.status = "Visited"
-
             if self.goal_node and current_node is self.goal_node:
                 return False
-            # Loop through the neighbors of this node
             for next_node in graph.get_neighbors(current_node):
                 self.compute_cost(current_node, next_node, graph)
             return True
         else:
             return False
+
+    def heuristic(self, node_a, node_b):
+        return abs(node_a.x - node_b.x) + abs(node_a.y - node_b.y)
 
     def compute_cost(self, current_node, next_node, graph):
         if current_node in self.came_from and self.line_of_sight(self.came_from[current_node], next_node, graph):
@@ -380,9 +376,6 @@ class ThetaStar(object):
                 self.frontier.put((priority, next_node))
                 next_node.status = "Frontier"
 
-    def heuristic(self, node_a, node_b):
-        return abs(node_a.x - node_b.x) + abs(node_a.y - node_b.y)
-
     def line_of_sight(self, node_a, node_b, graph):
         dx = abs(node_b.x - node_a.x)
         dy = abs(node_b.y - node_a.y)
@@ -395,7 +388,7 @@ class ThetaStar(object):
         dx *= 2
         dy *= 2
         while(n > 0):
-            # If the node we're looking at has a cost of 0, it means it is impassable
+            # If the node we're looking at has a cost of 0, it it is impassable and we must stop
             if graph.nodes[(x, y)].cost == 0:
                 return False
 
@@ -405,7 +398,6 @@ class ThetaStar(object):
             else:
                 y += y_inc
                 error += dx
-
             n -= 1
         # Done, which means we found a path
         return True
