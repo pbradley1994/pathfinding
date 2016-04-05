@@ -11,3 +11,7 @@ Currently comes with 7 pathfinding algorithms:
  - Dynamic Weight A*
  - Bidirectional Retargeting Search
  - Theta*
+
+## Executable
+An executable version (for Windows) of this code can be downloaded at:
+ - https://www.mediafire.com/?7toag7t9an9ntkw
