@@ -1,7 +1,7 @@
 # /usr/bin/env python2.7
 
 import pygame, sys, math
-from pygame import *
+from pygame.locals import *
 import colorDict, Algorithms, UserInterface
 
 TILESIZE = 32
@@ -98,6 +98,7 @@ class Graph(object):
             arrow = IMAGESDICT['arrow']
             for child_node, parent_node in self.algorithm.came_from.iteritems():
                 if child_node and parent_node:
+                    math.atan2(4, 5)
                     # Had to do MATH here!
                     angle = math.atan2(parent_node.x - child_node.x, parent_node.y - child_node.y)*180/math.pi - 90
                     new_arrow = pygame.transform.rotate(arrow, angle)
