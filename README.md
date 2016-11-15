@@ -3,13 +3,6 @@
 An interactive tool for exploring pathfinding algorithms on a 2D grid. Modify the kind of algorithm and the state of the map.
 
 ![GIF](/Screenshots/AStar3.gif)
-![FirstScreen](/Screenshots/FirstScreen)
-![BFS1](/Screenshots/BFS1.png) 
-![BFS2](/Screenshots/BFS2.png)
-![Greedy](/Screenshots/Greedy1.png)
-![Djikstra](/Screenshots/Djikstra1.png)
-![AStar](/Screenshots/Astar1.png) 
-![Theta](/Screenshots/Theta1.png)
 
 ## Algorithms
 Currently comes with 7 pathfinding algorithms:
@@ -49,3 +42,12 @@ To run this, you will need to download and install the following:
  - Add ability to click and hold to change node state en masse.
  - Allow dynamic change of size of graph.
  - Add ability to rewind, go one step through, etc.
+
+### More Screenshots
+![FirstScreen](/Screenshots/FirstScreen)
+![BFS1](/Screenshots/BFS1.png) 
+![BFS2](/Screenshots/BFS2.png)
+![Greedy](/Screenshots/Greedy1.png)
+![Djikstra](/Screenshots/Djikstra1.png)
+![AStar](/Screenshots/Astar1.png) 
+![Theta](/Screenshots/Theta1.png)
