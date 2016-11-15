@@ -20,6 +20,11 @@ An executable version (for Windows) of this code can be downloaded at:
 
 ## Default Controls:
 
+To run:
+```
+python main.py
+```
+
 Use your mouse.
 
 Select 'Show Arrows' to have each node point to its parent.
