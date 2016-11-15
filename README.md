@@ -44,7 +44,7 @@ To run this, you will need to download and install the following:
  - Add ability to rewind, go one step through, etc.
 
 ### More Screenshots
-![FirstScreen](/Screenshots/FirstScreen)
+![FirstScreen](/Screenshots/FirstScreen.png)
 ![BFS1](/Screenshots/BFS1.png) 
 ![BFS2](/Screenshots/BFS2.png)
 ![Greedy](/Screenshots/Greedy1.png)
